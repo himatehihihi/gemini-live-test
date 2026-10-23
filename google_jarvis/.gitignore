@@ -1,0 +1,43 @@
+# Python Caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+.tox/
+.nox/
+.hypothesis/
+
+# Virtual Environments
+venv/
+env/
+.env
+.venv
+bin/
+lib/
+share/
+Include/
+Scripts/
+pyvenv.cfg
+
+# Logs
+*.log
+realtimesst.log
+
+# Cache and temporary folders
+kokoro_cache/
+web_cache/
+web_profile/
+.vscode/
+
+# Assets (keep only what's needed)
+# fingers names.png, generating.png, idle.png are included in the repo but might be large
+# If you want to exclude all pngs except these, you can use:
+# *.png
+# !fingers names.png
+# !generating.png
+# !idle.png
+
+# System files
+.DS_Store
+Thumbs.db

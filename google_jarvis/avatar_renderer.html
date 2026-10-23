@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jarvis Avatar</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: transparent;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+    <!-- Load Three.js from CDN -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <script type="module">
+        import * as THREE from 'three';
+
+        let camera, scene, renderer;
+        let avatarMesh;
+        let isTalking = false;
+        let time = 0;
+
+        init();
+        animate();
+
+        function init() {
+            // Scene setup
+            scene = new THREE.Scene();
+            // Transparent background
+            scene.background = null;
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 10);
+            camera.position.z = 2;
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0x404040); // Soft white light
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(1, 1, 2);
+            scene.add(directionalLight);
+
+            const blueLight = new THREE.PointLight(0x00ffff, 2, 10);
+            blueLight.position.set(-1, -1, 0);
+            scene.add(blueLight);
+
+            // Placeholder Avatar: A Sci-Fi Sphere constructed of multiple rings/parts
+            const geometry = new THREE.IcosahedronGeometry(0.8, 1);
+            const material = new THREE.MeshStandardMaterial({
+                color: 0x00aaff,
+                wireframe: true,
+                emissive: 0x0044aa,
+                emissiveIntensity: 0.5,
+                roughness: 0.2,
+                metalness: 0.8
+            });
+
+            avatarMesh = new THREE.Mesh(geometry, material);
+            scene.add(avatarMesh);
+
+            // Inner core
+            const coreGeometry = new THREE.SphereGeometry(0.4, 16, 16);
+            const coreMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const coreMesh = new THREE.Mesh(coreGeometry, coreMaterial);
+            avatarMesh.add(coreMesh);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+
+            // Handle resize
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            time += 0.01;
+
+            // Idle animation
+            avatarMesh.rotation.y += 0.005;
+            avatarMesh.rotation.x = Math.sin(time * 0.5) * 0.1;
+
+            // Talking animation
+            if (isTalking) {
+                // Pulse effect
+                const scale = 1 + Math.sin(time * 20) * 0.1;
+                avatarMesh.scale.set(scale, scale, scale);
+
+                // Color shift
+                avatarMesh.material.emissiveIntensity = 0.5 + Math.sin(time * 20) * 0.5;
+            } else {
+                // Return to normal
+                avatarMesh.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
+                avatarMesh.material.emissiveIntensity = THREE.MathUtils.lerp(avatarMesh.material.emissiveIntensity, 0.5, 0.1);
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // Expose functions to global scope for Python to call
+        window.setTalking = function (talking) {
+            isTalking = talking;
+            console.log("Talking set to:", talking);
+        };
+    </script>
+</body>
+
+</html>
